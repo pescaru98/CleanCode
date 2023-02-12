@@ -36,8 +36,8 @@ function main() {
 }
 
 function processTransactions(transactions) {
-    if (!transactions || transactions.length === 0) {
-        console.log('No transactions provided!');
+    if (!hasTransactions(transactions)) {
+        showErrorMessage('No transactions provided!');
         return;
     }
     for (const transaction of transactions) {
@@ -65,6 +65,14 @@ function processTransactions(transactions) {
             console.log('Invalid transaction type!', transaction);
         }
     }
+}
+
+function hasTransactions(transactions) {
+    return transactions && transactions.length !== 0
+}
+
+function showErrorMessage(message) {
+    console.log(message);
 }
 
 function processCreditCardPayment(transaction) {
