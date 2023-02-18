@@ -60,7 +60,7 @@ function hasTransactions(transactions) {
     return transactions && transactions.length !== 0
 }
 
-function showErrorMessage(message, item) {
+function showErrorMessage(message, item = {}) {
     console.log(message);
     console.log(item);
 }
