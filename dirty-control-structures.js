@@ -44,11 +44,7 @@ function processTransactions(transactions) {
     validateTransactions(transactions);
 
     for (const transaction of transactions) {
-        try{
-            processTransaction(transaction);
-        } catch (error) {
-            showErrorMessage(error.message, error.item);
-        }
+        processTransaction(transaction);
     }
 }
 
@@ -70,14 +66,12 @@ function showErrorMessage(message, item) {
 }
 
 function processTransaction(transaction) {
-    validateTransaction(transaction);
+    try {
+        validateTransaction(transaction);
 
-    if (usesTransactionMethod(transaction, "CREDIT_CARD")) {
-        processCreditCardTransaction(transaction);
-    } else if (usesTransactionMethod(transaction, "PAYPAL")) {
-        processPayPalTransaction(transaction);
-    } else if (usesTransactionMethod(transaction, "PLAN")) {
-        processPlanTransaction(transaction);
+        processByMethod(transaction);
+    } catch (error) {
+        showErrorMessage(error.message, error.item);
     }
 }
 
@@ -87,7 +81,7 @@ function validateTransaction(transaction) {
         throw error;
     }
 
-    if(!isPayment(transaction) && !isRefund(transaction)) {
+    if (!isPayment(transaction) && !isRefund(transaction)) {
         const error = new Error('Invalid transaction type (not payment or refund)!');
         error.item = transaction;
         throw error;
@@ -96,6 +90,16 @@ function validateTransaction(transaction) {
 
 function isOpen(transaction) {
     return transaction.status === 'OPEN'
+}
+
+function processByMethod(transaction) {
+    if (usesTransactionMethod(transaction, "CREDIT_CARD")) {
+        processCreditCardTransaction(transaction);
+    } else if (usesTransactionMethod(transaction, "PAYPAL")) {
+        processPayPalTransaction(transaction);
+    } else if (usesTransactionMethod(transaction, "PLAN")) {
+        processPlanTransaction(transaction);
+    }
 }
 
 function usesTransactionMethod(transaction, method) {
