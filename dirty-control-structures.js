@@ -69,7 +69,7 @@ function processTransaction(transaction) {
 }
 
 function isOpen(transaction) {
-    return transaction.status !== 'OPEN'
+    return transaction.status === 'OPEN'
 }
 
 function isPayment(transaction) {
