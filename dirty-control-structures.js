@@ -41,17 +41,22 @@ function main() {
 }
 
 function processTransactions(transactions) {
-    if (!hasTransactions(transactions)) {
-        const error = new Error('No transactions provided!');
-        error.code = 1;
-        throw error;
-    }
+    validateTransactions(transactions);
+
     for (const transaction of transactions) {
         try{
             processTransaction(transaction);
         } catch (error) {
             showErrorMessage(error.message, error.item);
         }
+    }
+}
+
+function validateTransactions(transactions) {
+    if (!hasTransactions(transactions)) {
+        const error = new Error('No transactions provided!');
+        error.code = 1;
+        throw error;
     }
 }
 
@@ -65,16 +70,7 @@ function showErrorMessage(message, item) {
 }
 
 function processTransaction(transaction) {
-    if (!isOpen(transaction)) {
-        const error = new Error('Invalid transaction type!');
-        throw error;
-    }
-
-    if(!isPayment(transaction) && !isRefund(transaction)) {
-        const error = new Error('Invalid transaction type!');
-        error.item = transaction;
-        throw error;
-    }
+    validateTransaction(transaction);
 
     if (usesTransactionMethod(transaction, "CREDIT_CARD")) {
         processCreditCardTransaction(transaction);
@@ -82,6 +78,19 @@ function processTransaction(transaction) {
         processPayPalTransaction(transaction);
     } else if (usesTransactionMethod(transaction, "PLAN")) {
         processPlanTransaction(transaction);
+    }
+}
+
+function validateTransaction(transaction) {
+    if (!isOpen(transaction)) {
+        const error = new Error('Invalid transaction type (not opened)!');
+        throw error;
+    }
+
+    if(!isPayment(transaction) && !isRefund(transaction)) {
+        const error = new Error('Invalid transaction type (not payment or refund)!');
+        error.item = transaction;
+        throw error;
     }
 }
 
