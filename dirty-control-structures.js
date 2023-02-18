@@ -47,7 +47,11 @@ function processTransactions(transactions) {
         throw error;
     }
     for (const transaction of transactions) {
-        processTransaction(transaction);
+        try{
+            processTransaction(transaction);
+        } catch (error) {
+            showErrorMessage(error.message, error.item);
+        }
     }
 }
 
@@ -62,8 +66,14 @@ function showErrorMessage(message, item) {
 
 function processTransaction(transaction) {
     if (!isOpen(transaction)) {
-        showErrorMessage('Invalid transaction type!');
-        return;
+        const error = new Error('Invalid transaction type!');
+        throw error;
+    }
+
+    if(!isPayment(transaction) && !isRefund(transaction)) {
+        const error = new Error('Invalid transaction type!');
+        error.item = transaction;
+        throw error;
     }
 
     if (usesTransactionMethod(transaction, "CREDIT_CARD")) {
@@ -96,8 +106,6 @@ function processCreditCardTransaction(transaction) {
         processCreditCardPayment(transaction);
     } else if (isRefund(transaction)) {
         processCreditCardRefund(transaction);
-    } else {
-        showErrorMessage('Invalid transaction type!', transaction);
     }
 }
 
@@ -106,8 +114,6 @@ function processPayPalTransaction(transaction) {
         processPayPalPayment(transaction);
     } else if (isRefund(transaction)) {
         processPayPalRefund(transaction);
-    } else {
-        showErrorMessage('Invalid transaction type!', transaction);
     }
 }
 
@@ -116,8 +122,6 @@ function processPlanTransaction(transaction) {
         processPlanTransaction(transaction);
     } else if (isRefund(transaction)) {
         processPlanRefund(transaction);
-    } else {
-        showErrorMessage('Invalid transaction type!', transaction);
     }
 }
 
