@@ -59,17 +59,22 @@ function processTransaction(transaction) {
         showErrorMessage('Invalid transaction type!');
         return;
     }
-    if (isPayment(transaction)) {
-        processPayment(transaction);
-    } else if (isRefund(transaction)) {
-        processRefund(transaction);
-    } else {
-        showErrorMessage('Invalid transaction type!', transaction);
+
+    if (usesTransactionMethod(transaction, "CREDIT_CARD")) {
+        processCreditCardTransaction(transaction);
+    } else if (usesTransactionMethod(transaction, "PAYPAL")) {
+        processPayPalTransaction(transaction);
+    } else if (usesTransactionMethod(transaction, "PLAN")) {
+        processPlanTransaction(transaction);
     }
 }
 
 function isOpen(transaction) {
     return transaction.status === 'OPEN'
+}
+
+function usesTransactionMethod(transaction, method) {
+    return transaction.method === method;
 }
 
 function isPayment(transaction) {
@@ -80,23 +85,33 @@ function isRefund(transaction) {
     return transaction.type === 'REFUND';
 }
 
-function processPayment(paymentTransaction) {
-    if (paymentTransaction.method === 'CREDIT_CARD') {
-        processCreditCardPayment(paymentTransaction);
-    } else if (paymentTransaction.method === 'PAYPAL') {
-        processPayPalPayment(paymentTransaction);
-    } else if (paymentTransaction.method === 'PLAN') {
-        processPlanPayment(paymentTransaction);
+function processCreditCardTransaction(transaction) {
+    if (isPayment(transaction)) {
+        processCreditCardPayment(transaction);
+    } else if (isRefund(transaction)) {
+        processCreditCardRefund(transaction);
+    } else {
+        showErrorMessage('Invalid transaction type!', transaction);
     }
 }
 
-function processRefund(refundTransaction) {
-    if (refundTransaction.method === 'CREDIT_CARD') {
-        processCreditCardRefund(refundTransaction);
-    } else if (refundTransaction.method === 'PAYPAL') {
-        processPayPalRefund(refundTransaction);
-    } else if (refundTransaction.method === 'PLAN') {
-        processPlanRefund(refundTransaction);
+function processPayPalTransaction(transaction) {
+    if (isPayment(transaction)) {
+        processPayPalPayment(transaction);
+    } else if (isRefund(transaction)) {
+        processPayPalRefund(transaction);
+    } else {
+        showErrorMessage('Invalid transaction type!', transaction);
+    }
+}
+
+function processPlanTransaction(transaction) {
+    if (isPayment(transaction)) {
+        processPlanTransaction(transaction);
+    } else if (isRefund(transaction)) {
+        processPlanRefund(transaction);
+    } else {
+        showErrorMessage('Invalid transaction type!', transaction);
     }
 }
 
